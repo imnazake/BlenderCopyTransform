@@ -1,12 +1,12 @@
 # Copy Transform to Clipboard (Blender Addon)
 
-A small Blender 4.0+ addon that copies the active object's transform to your system clipboard — either as plain Blender values or pre-converted to **Unreal Engine** format, ready to paste into the UE editor.
+A small Blender 4.0+ addon that copies the active object's transform to your system clipboard, either as plain Blender values or pre-converted to **Unreal Engine** format, ready to paste into the UE editor.
 
 ## Features
 
 - Copy **Location**, **Rotation**, and **Scale** (individually toggleable)
-- **Plain copy** — raw Blender values, easy to paste into scripts, docs, or chat
-- **Unreal copy** — converts units (m → cm), remaps axes (Y-up → X-forward), and outputs UE-style fields
+- **Plain copy** : raw Blender values, easy to paste into scripts, docs, or chat
+- **Unreal copy** :  converts units (m → cm), remaps axes (Y-up → X-forward), and outputs UE-style fields
 - Works with both Euler and Quaternion rotation modes
 - Lives in the 3D Viewport sidebar (N-panel) for quick access
 
@@ -61,8 +61,8 @@ Rotation is converted from radians to degrees and remapped to UE's Roll/Pitch/Ya
 3. Click the **Transform Copy** tab.
 4. Tick the channels you want: **Location**, **Rotation**, **Scale**.
 5. Click one of the buttons:
-   - **Copy to Clipboard** — plain Blender values
-   - **Copy to Clipboard (Unreal)** — UE-formatted values
+   - **Copy to Clipboard** : plain Blender values
+   - **Copy to Clipboard (Unreal)** : UE-formatted values
 6. The transform is now on your system clipboard. Paste it anywhere with `Ctrl+V` (or `Cmd+V` on macOS).
 
 ### Example workflow
@@ -96,7 +96,7 @@ README.md                     # this file
 
 ## License
 
-MIT — do whatever you want with it.
+MIT : do whatever you want with it.
 
 ## Contributing
 
@@ -104,7 +104,3 @@ PRs welcome. If you hit a conversion edge case (odd axis orientation, non-unifor
 - The Blender object's transform
 - What the addon output
 - What Unreal expected
-
----
-
-*Not affiliated with Epic Games or the Blender Foundation.*
