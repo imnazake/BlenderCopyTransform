@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Copy Transform to Clipboard",
     "author": "Nazake",
-    "version": (1, 3),
+    "version": (1, 4),
     "blender": (4, 0, 0),
     "location": "3D Viewport > Sidebar (N) > Transform Copy",
     "description": "Copy the active object's transform to the clipboard (plain or Unreal Engine format)",
@@ -18,12 +18,13 @@ from bpy.props import BoolProperty
 # ---------------------------------------------------------------------------
 
 def blender_loc_to_ue(loc):
-    # Blender (meters, Z-up, RH) -> UE (cm, Z-up, LH)
-    return (-loc.y * 100.0, loc.x * 100.0, loc.z * 100.0)
+    # Blender (meters, RH) -> UE (cm, LH): convert units, negate Y
+    return (loc.x * 100.0, -loc.y * 100.0, loc.z * 100.0)
 
 
 def blender_scale_to_ue(scl):
-    return (scl.y, scl.x, scl.z)
+    # Scale: no unit change, no negation (negating would mirror the mesh)
+    return (scl.x, scl.y, scl.z)
 
 
 def blender_rot_to_ue(obj):
@@ -33,7 +34,7 @@ def blender_rot_to_ue(obj):
         e = obj.rotation_euler
     roll  =  math.degrees(e.x)
     pitch = -math.degrees(e.y)
-    yaw   = -math.degrees(e.z)
+    yaw   =  math.degrees(e.z)
     return (roll, pitch, yaw)
 
 
@@ -157,10 +158,16 @@ class VIEW3D_PT_copy_transform_clipboard(bpy.types.Panel):
 # Register / Unregister
 # ---------------------------------------------------------------------------
 
+classes = (
+    OBJECT_OT_copy_transform_clipboard,
+    OBJECT_OT_copy_transform_clipboard_ue,
+    VIEW3D_PT_copy_transform_clipboard,
+)
+
+
 def register():
-    bpy.utils.register_class(OBJECT_OT_copy_transform_clipboard)
-    bpy.utils.register_class(OBJECT_OT_copy_transform_clipboard_ue)
-    bpy.utils.register_class(VIEW3D_PT_copy_transform_clipboard)
+    for cls in classes:
+        bpy.utils.register_class(cls)
 
     bpy.types.Scene.copy_transform_use_location = BoolProperty(
         name="Location", description="Copy location", default=True,
@@ -174,9 +181,8 @@ def register():
 
 
 def unregister():
-    bpy.utils.unregister_class(OBJECT_OT_copy_transform_clipboard)
-    bpy.utils.unregister_class(OBJECT_OT_copy_transform_clipboard_ue)
-    bpy.utils.unregister_class(VIEW3D_PT_copy_transform_clipboard)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
 
     del bpy.types.Scene.copy_transform_use_location
     del bpy.types.Scene.copy_transform_use_rotation
