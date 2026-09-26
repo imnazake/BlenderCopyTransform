@@ -6,7 +6,7 @@ A small Blender 4.0+ addon that copies the active object's transform to your sys
 
 - Copy **Location**, **Rotation**, and **Scale** (individually toggleable)
 - **Plain copy** : raw Blender values, easy to paste into scripts, docs, or chat
-- **Unreal copy** :  converts units (m → cm), remaps axes (Y-up → X-forward), and outputs UE-style fields
+- **Unreal copy** : converts units (m → cm), flips the Y axis for UE's left-handed coordinate system, and outputs UE-style fields
 - Works with both Euler and Quaternion rotation modes
 - Lives in the 3D Viewport sidebar (N-panel) for quick access
 
@@ -19,35 +19,40 @@ Rotation (Euler): (0.000000, 0.000000, 0.000000)
 Scale: (1.000000, 1.000000, 1.000000)
 ```
 
-**Unreal Engine**:
+**Unreal Engine** (input Blender location: `-0.328722, -0.092042, 8.538713`):
 ```
-(X=-200.000000,Y=100.000000,Z=50.000000)
+(X=-32.872200,Y=9.204200,Z=853.871300)
 (Roll=0.000000,Pitch=0.000000,Yaw=0.000000)
 (X=1.000000,Y=1.000000,Z=1.000000)
 ```
 
 ## Blender → Unreal conversion
 
-| Blender | Unreal |
-|---------|--------|
-| +X | +Y |
-| +Y | -X |
-| +Z | +Z |
-| meters | centimeters |
-
-Formulas used:
+Location formulas:
 
 ```
-UE_X = -Blender_Y * 100
-UE_Y =  Blender_X * 100
+UE_X =  Blender_X * 100
+UE_Y = -Blender_Y * 100
 UE_Z =  Blender_Z * 100
 ```
 
-Rotation is converted from radians to degrees and remapped to UE's Roll/Pitch/Yaw convention. Scale is axis-remapped (X ↔ Y) without unit conversion.
+Rotation is converted from radians to degrees, with Pitch negated to match UE's handedness:
+
+```
+Roll  =  degrees(Blender_Rotation_X)
+Pitch = -degrees(Blender_Rotation_Y)
+Yaw   =  degrees(Blender_Rotation_Z)
+```
+
+Scale passes through unchanged (negating it would mirror the mesh):
+
+```
+UE_Scale = Blender_Scale
+```
 
 ## Installation
 
-1. Download `copy_transform_clipboard.py` from this repo.
+1. Download `copy_blender_transform.py` from this repo.
 2. Open Blender **4.0** or newer.
 3. Go to **Edit → Preferences → Add-ons**.
 4. Click **Install…**, select the `.py` file, and confirm.
@@ -75,10 +80,18 @@ You're blocking out a level in Blender, exporting a mesh to UE, and want the act
 4. Click **Copy to Clipboard (Unreal)**.
 5. In UE, select your actor, go to the **Details** panel → **Transform** → **Location**, click the field, and paste.
 
+### Verified example
+
+Blender location `(-0.328722, -0.092042, 8.538713)` converts to:
+
+```
+(X=-32.872200,Y=9.204200,Z=853.871300)
+```
+
 ## Notes & caveats
 
 - The addon reads only the **active object**. Multi-object batch copying is not supported (yet).
-- Rotation conversion is a best-effort remap. Depending on your UE project settings and import pipeline (FBX vs Datasmith), you may need to flip a sign. If rotation looks wrong, open an issue with the input and expected output.
+- Axis conversion is a straight Y-negation with m → cm unit scaling, no axis swap.
 - Numbers use 6 decimal places. To change precision, edit the `:.6f` format strings in the script.
 - Tested on Blender 4.0. Should work on 4.1+ but has not been verified.
 
@@ -90,8 +103,8 @@ You're blocking out a level in Blender, exporting a mesh to UE, and want the act
 ## File structure
 
 ```
-copy_transform_clipboard.py   # the addon (single file)
-README.md                     # this file
+copy_blender_transform.py   # the addon (single file)
+README.md                   # this file
 ```
 
 ## License
